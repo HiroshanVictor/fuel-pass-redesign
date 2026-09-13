@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* accessibility.md §6 — every transition/animation collapses under
+   prefers-reduced-motion. Component-level behaviour (S4's progress bar,
+   the offline banner's slide-in) is handled in the components themselves;
+   this is the blanket safety net for everything else. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  font-family: theme('fontFamily.sans');
+}
+
+body {
+  background-color: theme('colors.surface-muted');
+  color: theme('colors.text-primary');
+  /* tokens.md §3.4 — no fixed heights on translatable text containers */
+  min-height: 100vh;
+}
+
+/* D18 / tokens.md §3.1 — no letter-spacing utility is ever applied to
+   text content; this is the enforcement point for that rule. */
+body,
+input,
+textarea,
+button {
+  letter-spacing: normal;
+}
