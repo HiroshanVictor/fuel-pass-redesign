@@ -31,7 +31,8 @@ No specific support phone number or email appears anywhere below. `problems.md` 
 | Field label 2 | Chassis number |
 | Inline help link | Where do I find this? |
 | Primary button | Find my vehicle |
-| Inline error (no record found) | We couldn't find a record matching those details. Double-check the vehicle registration number and chassis number, then try again. |
+| Inline error — partial match *(one field matches a known record, the other doesn't — genuinely typo-shaped)* | We couldn't find a record matching those details. Double-check the vehicle registration number and chassis number, then try again. |
+| Inline error — no match at all *(neither field matches anything — D20: could be a typo just as easily as a vehicle never in DMT records, so the copy doesn't guess)* | We couldn't find this vehicle. Double-check what you entered, or if this is a brand-new vehicle being registered for the first time, see Help & Answers *(linked to S8)*. |
 
 ---
 
@@ -49,9 +50,7 @@ No specific support phone number or email appears anywhere below. `problems.md` 
 
 | Element | String |
 |---|---|
-| Status message 1 | Checking your details... |
-| Status message 2 | Checking DMT vehicle records... |
-| Status message 3 | Almost done... |
+| Status message *(fixed, shown for the full wait — D19)* | Checking DMT vehicle records... |
 | Supporting line | This can take a little longer during busy periods — we're checking directly against national vehicle records. |
 
 ---

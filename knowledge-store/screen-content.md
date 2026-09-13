@@ -31,7 +31,7 @@
 | Field 1 | Vehicle registration number. |
 | Field 2 | Chassis number, with an inline "Where do I find this?" trigger → S3 (Flow 5). |
 | Primary action | Submit → S4. |
-| Inline error state | Per `user-flows.md` Flow 4: appears in place, not as a new screen, when S4 returns no record. Worded distinctly from S6's message — this says the input may be wrong; S6 never does. |
+| Inline error state | Per `user-flows.md` Flow 4: appears in place, not as a new screen, when S4 returns no record. Two distinct messages (D20), not one: a partial match (one field recognised, one not) says the input may be wrong; a match on neither field says so honestly, without guessing a typo it can't verify, and points to S8. Both are worded distinctly from S6's message — S6 never implies the input was wrong, because there the record *is* found. |
 
 **Note — no identity field.** This form asks for the vehicle, not the owner: no NIC, passport, BRN, or phone number. That is the direct consequence of D14, and it also means the one-identity-one-vehicle rule behind `problems.md` #1 has no trigger point in this flow — this prototype doesn't check or refuse against it, because it never collects the credential that rule is keyed on. That enforcement, if retained, sits outside what's mocked here. Not an oversight — `sitemap.md` §8 already excludes a dedicated refusal screen for #1 by name.
 
@@ -57,7 +57,7 @@
 
 | Block | Content |
 |---|---|
-| Status messaging | Multi-stage, not a single static spinner label — the wait (~6 seconds, mocked) is filled with sequential status text so it reads as progress, not as a stall. This is a direct answer to `problems.md` #6: a system that shows nothing while it works is how citizens end up assuming it's offline. |
+| Status messaging | A single, specific status label ("Checking DMT vehicle records...") plus a determinate progress bar — not a static spinner label — so the wait (~6 seconds, mocked) reads as progress, not as a stall. This is a direct answer to `problems.md` #6: a system that shows nothing while it works is how citizens end up assuming it's offline. **D19:** an earlier draft staged three sequential messages here; reverted to one fixed message after two screenshots of the same wait, taken moments apart, read as an inconsistency rather than a progression — the progress bar alone still carries the "something concrete is happening" signal. |
 | No cancel action | The lookup is short enough by design that a cancel path was judged unnecessary; nothing in `problems.md` #2 or #4 asks for one. |
 
 **Outcomes, per `user-flows.md` §2–5:**

@@ -32,10 +32,23 @@ export const VEHICLES = [
 export function lookupVehicle(vehicleNumber, chassisNumber) {
   const v = normalise(vehicleNumber)
   const c = normalise(chassisNumber)
-  const match = VEHICLES.find(
+
+  const exactMatch = VEHICLES.find(
     (entry) => normalise(entry.vehicleNumber) === v && normalise(entry.chassisNumber) === c
   )
-  return match ? { ...match } : { resolution: 'not-found' }
+  if (exactMatch) return { ...exactMatch }
+
+  // D20: a resolution of 'not-found' asserts a typo — only warranted when
+  // one field matches a known record and the other doesn't, which is
+  // genuinely typo-shaped. When *neither* field matches anything, this
+  // mock has no basis to claim a typo over any other cause (including a
+  // vehicle that's simply never been in DMT records — P7's case, still
+  // not built per D8/D15, but the copy shouldn't imply a cause it hasn't
+  // verified just because that case falls through here too).
+  const partialMatch = VEHICLES.some(
+    (entry) => normalise(entry.vehicleNumber) === v || normalise(entry.chassisNumber) === c
+  )
+  return { resolution: partialMatch ? 'not-found' : 'no-record' }
 }
 
 // --- Station journey (S9 / S10) --------------------------------------------

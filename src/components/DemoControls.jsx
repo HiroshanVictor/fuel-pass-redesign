@@ -23,10 +23,26 @@ export default function DemoControls() {
   function fillVehicle(vehicle) {
     citizen.setVehicleNumber(vehicle.vehicleNumber)
     citizen.setChassisNumber(vehicle.chassisNumber)
+    setOpen(false)
+  }
+
+  function fireScan(qrCode) {
+    if (location.pathname !== '/station') navigate('/station')
+    station.simulateScan(qrCode)
+    setOpen(false)
+  }
+
+  function handleOfflineToggle() {
+    station.toggleOffline()
+    // Closed on a short delay, not instantly — long enough that the
+    // checkbox visibly registers the click before the panel collapses,
+    // short enough that it doesn't linger open over the screen it's
+    // meant to reveal (this is what fixed this exact overlap on S10).
+    window.setTimeout(() => setOpen(false), 200)
   }
 
   return (
-    <div className="fixed bottom-3 right-3 z-50 max-w-xs font-mono text-xs">
+    <div className="fixed bottom-3 right-3 z-50 w-44 font-mono text-xs sm:w-64">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -36,7 +52,7 @@ export default function DemoControls() {
       </button>
 
       {open && (
-        <div className="space-y-3 rounded-b border border-t-0 border-dashed border-slate-400 bg-slate-50 p-3 text-slate-700">
+        <div className="max-h-[50vh] space-y-3 overflow-y-auto rounded-b border border-t-0 border-dashed border-slate-400 bg-slate-50 p-3 text-slate-700">
           <div className="flex gap-2">
             <button
               type="button"
@@ -84,10 +100,7 @@ export default function DemoControls() {
                   <button
                     key={p.qrCode}
                     type="button"
-                    onClick={() => {
-                      if (location.pathname !== '/station') navigate('/station')
-                      station.simulateScan(p.qrCode)
-                    }}
+                    onClick={() => fireScan(p.qrCode)}
                     className="rounded border border-slate-300 bg-white px-2 py-1 text-left hover:border-slate-500"
                   >
                     {p.qrCode} → {p.status}
@@ -95,7 +108,7 @@ export default function DemoControls() {
                 ))}
               </div>
               <label className="flex items-center gap-2 pt-1">
-                <input type="checkbox" checked={station.isOffline} onChange={station.toggleOffline} />
+                <input type="checkbox" checked={station.isOffline} onChange={handleOfflineToggle} />
                 Simulate offline
               </label>
             </div>

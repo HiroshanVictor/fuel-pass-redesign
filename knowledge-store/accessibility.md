@@ -54,7 +54,7 @@ Each screen's tab sequence, in order. Screens with no interactive elements beyon
 | **S1** | 1. Primary button (Continue) → 2. Secondary link (Help & Answers) |
 | **S2** | 1. Vehicle registration number field → 2. Chassis number field → 3. "Where do I find this?" link (immediately after the field it explains, both visually and in tab order) → 4. Primary button (Find my vehicle) |
 | **S3** | 1. Back button (Back to my details) — only interactive element; the location diagram is static content, not a tab stop |
-| **S4** | **No tab stops.** Nothing is interactive by design (`component-spec.md` §6) — the staged status updates reach assistive technology via `aria-live`, not via focus |
+| **S4** | **No tab stops.** Nothing is interactive by design (`component-spec.md` §6) — the status message reaches assistive technology via `aria-live` on mount, not via focus |
 | **S5** | 1. Primary button (Download QR code) → 2. Secondary button (Print). The conditional override note, when present, is static text and not a tab stop |
 | **S6** | 1. Primary button (This is my vehicle — claim it) → 2. Secondary button (This isn't my situation — get help) → 3. Tertiary link (Read more in Help & Answers) |
 | **S7** | 1. File upload trigger (Choose file) → 2. Optional notes field → 3. Primary button (Submit for review) |
@@ -70,7 +70,7 @@ Each screen's tab sequence, in order. Screens with no interactive elements beyon
 
 | Screen(s) | Role / `aria-live` | Urgency | Why |
 |---|---|---|---|
-| S4 | `role="status"`, `aria-live="polite"` | Waits its turn | Progress updates aren't urgent — they're informative, and interrupting other announcements to deliver "Almost done..." would be worse than a short delay in hearing it. |
+| S4 | `role="status"`, `aria-live="polite"` | Waits its turn | The wait status isn't urgent — it's informative, and interrupting other announcements to deliver it would be worse than a short delay in hearing it. (D19: this is now a single fixed message announced once on mount, not a sequence of updates — "polite" still applies, there's just less to announce.) |
 | S9 result display | `role="alert"`, `aria-live="assertive"` | Interrupts | A pass/fail result at a fuel pump is time-critical in a way S4's progress isn't — `component-spec.md` §7 draws this contrast explicitly. |
 | S9 + S10 offline banner | `role="status"`, `aria-live="polite"` | Waits its turn | A connectivity change is worth surfacing but isn't as urgent as a scan result — same reasoning tier as S4, applied to a different component. |
 
@@ -118,7 +118,7 @@ WCAG 2.5.8 (AA) requires 24×24 CSS px minimum; 2.5.5 (AAA) requires 44×44. `to
 
 `tokens.md` §7.1 declares that every transition duration collapses under `prefers-reduced-motion`. Two places this actually changes rendered behaviour, not just theory:
 
-- **S4's progress bar** (`component-spec.md` §6): continuous fill → three discrete step markers advancing on the same 0s/2.5s/5s schedule. The *information* (progress, timing) survives; only continuous motion is removed.
+- **S4's progress bar** (`component-spec.md` §6): continuous fill → a static, non-animating bar at a fixed partial fill. The fixed status message (D19) and the fact that a wait is in progress both survive; only the continuous motion is removed.
 - **Offline banner slide-in** (`component-spec.md` §8): `duration-slow` transition → instant appearance, no slide.
 
 This exceeds WCAG's actual floor here — 2.3.3 (motion from interactions) is an AAA criterion, not required at AA — consistent with the rest of this file treating AA as a floor to clear with margin rather than a ceiling to stop at.

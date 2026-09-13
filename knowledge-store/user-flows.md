@@ -13,7 +13,7 @@
 | 1 | Clean-match registration (happy path) | P1 | S1 → S2 → S4 → S5 | Fuel Pass issued |
 | 2 | Previous-owner override, self-service succeeds | P1 | S1 → S2 → S4 → S6 → S5 | Fuel Pass issued via override claim |
 | 3 | Previous-owner override, self-service declined | P1 | S1 → S2 → S4 → S6 → S7 | Dispute submitted, pending review |
-| 4 | Mistyped vehicle or chassis number | P1 | S2 ⇄ S4 (inline) | Corrected, re-submitted |
+| 4 | No record found at S4 (partial match, or no match at all) | P1 | S2 ⇄ S4 (inline) | Corrected and re-submitted, or routed to S8 |
 | 5 | Finding the chassis number mid-form | P1 | S2 → S3 → S2 | Returns to form informed |
 | 6 | General help lookup | P1 | S1 / S2 / S6 / S7 → S8 | Question answered, or routed to S7 |
 | 7 | Station scan, clean pass (happy path) | P2 | S9 | Vehicle waved through |
@@ -65,16 +65,18 @@
 
 ---
 
-## 5. Flow 4 — Mistyped vehicle or chassis number
+## 5. Flow 4 — No record found at S4
 
 **Traces to:** #2 (this is the form validation around the same mechanism, not a new problem). **Persona:** P1.
 
 1. Steps 1–2 as Flow 1: user reaches **S2**, enters a vehicle number and/or chassis number.
-2. Lookup at **S4** returns no matching record at all.
-3. This is treated as **the more likely explanation being a typo, not a nonexistent vehicle** — the system does not navigate to a new screen or suggest the vehicle isn't registrable. Control returns to **S2** with the two fields flagged and a direct statement that no record was found for what was entered, distinct in wording from S6's "found, but claimed" message so the two are never confusable.
-4. User corrects and resubmits, returning to step 2 of Flow 1.
+2. Lookup at **S4** returns no matching record — and branches on *how much* didn't match (D20, `decisions.md`):
+   - **Partial match** — one field matches a known record, the other doesn't. Genuinely typo-shaped: the system has evidence the vehicle exists and something was still entered wrong. Control returns to **S2** with a message asking the user to double-check what they entered.
+   - **No match at all** — neither field matches anything. This is *not* treated as "more likely a typo" — the mock (and, arguably, DMT ownership data on its own) has no basis to prefer a typo over any other cause, including a vehicle that has simply never been in the system. Control returns to **S2** with a message that names the ambiguity honestly and points to S8 for the brand-new-vehicle case, rather than guessing.
+3. Neither message implies the vehicle isn't registrable, and neither navigates to a new screen — both are corrected in place. Both are worded distinctly from S6's "found, but claimed" message, so a genuine record match is never confusable with either kind of non-match.
+4. User corrects and resubmits (partial-match case), or follows the S8 link (no-match case), or both.
 
-**Why this isn't a screen.** `gap-analysis.md` C6 names clear validation errors (`F 13`) as required by `R §5-6`, and an inline correction is the direct reading of that — routing a likely typo through a whole extra screen would add a step the evidence doesn't ask for.
+**Why this isn't a screen.** `gap-analysis.md` C6 names clear validation errors (`F 13`) as required by `R §5-6`, and an inline correction is the direct reading of that — routing either case through a whole extra screen would add a step the evidence doesn't ask for. Splitting the message in two (D20) is a copy-accuracy fix, not a scope change: it still doesn't reopen P7 (`decisions.md` D8) as a build target.
 
 ---
 

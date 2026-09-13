@@ -163,7 +163,7 @@ Named so the sitemap is auditable against D15, not just consistent with it.
 | Excluded | Why | Where it's recorded instead |
 |---|---|---|
 | Multi-vehicle / second-registration screen | `problems.md` #1 is the highest-harm problem in the whole set, but it is policy-owned (D6) and not one of D15's four. A refusal-experience screen for it was considered and is explicitly out of this build. | Board argument in the proposal narrative, per D6 |
-| New-vehicle registrant entry point | P7 is a stub with no board argument yet (D8). | `users.md` P7, interview backlog |
+| New-vehicle registrant entry point | P7 is a stub with no board argument yet (D8). Re-checked when asked how first-time registration is handled: still not built. What changed is narrower — D20 stops S2's error copy from implying a typo when a genuinely new vehicle (or any other unrecognised input) hits this boundary, without adding a flow. | `users.md` P7, interview backlog; `decisions.md` D20 |
 | Dashboard / quota balance / transaction history | `gap-analysis.md` C5 (F17, F20) — flagged as assumption, not evidenced, and not one of D15's four problems. | `gap-analysis.md` §3 C5 |
 | Mobile-number update / OTP recovery screens | Superseded by D14 — identity no longer anchors on mobile number, so `problems.md` #5 and #9 lose their build rationale even though they remain in the ranked list. | `decisions.md` D14 |
 | Odd/even plate-day check | `problems.md` #10 is policy (Ministry-set), not one of D15's four. | `problems.md` §9.2 |

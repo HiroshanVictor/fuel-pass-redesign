@@ -50,9 +50,10 @@ All in `src/data/demoData.js`. Every value below fires the same outcome every ti
 | `WP CAB-1234` | `MA3ERLF1S00123456` | Clean match | S4 → **S5** directly (Flow 1) |
 | `WP KL-5678` | `MA3FYE73S00654321` | Previous owner on file | S4 → **S6**. Clicking "This is my vehicle — claim it" **succeeds** → S5 (Flow 2) |
 | `WP NC-9012` | `MA3NCX2S00789012` | Previous owner on file | S4 → **S6**. Clicking "This is my vehicle — claim it" **fails to resolve automatically** → S7 (Flow 3) |
-| *(anything else)* | *(anything else)* | Not found | S4 → back to **S2** with the inline "we couldn't find a record" error (Flow 4). Try e.g. `WP XX-0000` / `NOTHING`. |
+| A seeded vehicle number with a **wrong** chassis number (or vice versa) | Partial match — typo-shaped | S4 → back to **S2**, "double-check what you entered" copy. Try `WP CAB-1234` / any wrong chassis. |
+| *(neither field matches anything seeded)* | No record at all | S4 → back to **S2** with the honest "we couldn't find this vehicle... if this is a brand-new vehicle... see Help & Answers" copy, linked to S8 (D20). Try e.g. `WP XX-0000` / `NOTHING`. |
 
-Both fields must match a seeded pair exactly (case-insensitive, whitespace-normalised) — a right vehicle number with a wrong chassis number resolves as not-found, same as two wrong fields, consistent with Flow 4's framing that a mismatch reads as a likely typo rather than a special case.
+D20 (`decisions.md`) split what used to be one "not found" resolution into two, specifically because collapsing them let the copy assume a typo it hadn't verified — the same fault-attribution issue the S6 rename fixed once already, now caught at this second boundary. `lookupVehicle()` in `src/data/demoData.js` distinguishes them by checking each field independently against the seed list.
 
 On S6, the secondary "This isn't my situation — get help" button always goes straight to S7 regardless of which previous-owner vehicle triggered it — that path is a voluntary choice, not a system failure, and works identically for both seeded previous-owner vehicles.
 
@@ -90,11 +91,27 @@ A checkbox in the Demo Controls panel (§6), scoped to the shared `StationContex
 
 This exists because the brief explicitly asked for deterministic data that "fires on command," including "a manual offline toggle for S10" by name — it is scope the brief itself authorised, not an addition made unbidden. It is never rendered as part of, or styled to resemble, any of the ten screens in `sitemap.md`, and none of its buttons appear in the focus-order tables in `accessibility.md` §2, which describe the product screens only.
 
+**Auto-closes after every action.** A QA pass at a mobile viewport (390×844) found the expanded panel overlapping the "Back to scanning" link on S10 when both the offline banner and the panel were open at once — a real, visible bug, even though the panel itself isn't a product screen. Fixed by having the panel collapse itself after any button click or the offline checkbox (200ms delay on the checkbox so the click visibly registers first), rather than trying to out-position an overlay against every possible combination of screen content and viewport height. It reopens on demand from its small collapsed toggle, which is never large enough to overlap anything.
+
+---
+
+## 10. QA pass — 2026-09-13
+
+Three issues found and fixed during a review pass, recorded here so the fixes are traceable rather than silent:
+
+| Issue | Fix |
+|---|---|
+| S4 showed different headlines depending on when a screenshot was taken (staged 3-message sequence) — read as inconsistent rather than progressive across static images. | Reverted to one fixed message for the full wait — see `decisions.md` D19. |
+| S3's chassis-location diagram clipped the "CR book / revenue licence" label at the SVG's edge (text positioned past the viewBox width). | Repositioned the label above/below the document callout with `text-anchor="middle"`, widened the viewBox slightly. `public/chassis-location.svg`. |
+| Demo Controls panel overlapped page content (specifically S10's "Back to scanning" link) at a mobile viewport when expanded. | Panel now auto-closes after any action (§4 above); also narrowed and given internal scroll as a second layer of defence. |
+
+All ten screens were then re-verified at a 390×844 mobile viewport (S4 through a live wait, S5/S6 through their real seeded flows, S9 in both ready and result states, S10 in both default and offline states) with no further layout issues found.
+
 ---
 
 ## 5. Pacing — implemented exactly per tokens.md §7
 
-- **S4:** `VerificationWaitState` runs a 6000ms timer (`S4_TOTAL_DELAY_MS`), with status text swapping at 0 / 2500 / 5000ms (`S4_MESSAGE_TIMES_MS`) and a linear (not eased) progress bar filling over the same 6000ms via `requestAnimationFrame`. Under `prefers-reduced-motion`, the bar is replaced with "Step N of 3" text on the same schedule, per `component-spec.md` §6.
+- **S4:** `VerificationWaitState` runs a 6000ms timer (`S4_TOTAL_DELAY_MS`) with a linear (not eased) progress bar filling over the same 6000ms via `requestAnimationFrame`, under one fixed status message for the full duration (D19 — see `decisions.md`). Under `prefers-reduced-motion`, the bar renders as a static partial fill instead of animating; the message doesn't change either way.
 - **S9:** validation is synchronous (§2 above); only the 100ms fade-in is timed.
 - **S9/S10 result hold:** 3000ms (`S9_RESULT_HOLD_MS`) before the result auto-clears and, on S10, before auto-navigating back to `/station` — both read from the same constant, so they can't drift apart.
 

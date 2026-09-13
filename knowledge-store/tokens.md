@@ -187,7 +187,7 @@ These are mocked backend behaviour, not visual design, but every file that refer
 | Constant | Value | Source |
 |---|---|---|
 | S4 total simulated delay | `[ASSUMPTION]` — 6 seconds, fixed (not randomized) | Demo-pacing judgement, see note above. Not sourced from `research.md`. |
-| S4 status-message cadence | Message 1 at 0s, message 2 at ~2.5s, message 3 at ~5s, resolves at 6s | Derived from the 6-second figure above — inherits the same `[ASSUMPTION]` flag |
+| S4 status message | One fixed headline, shown for the full 6 seconds — not staged | **D19 reversal.** Originally three sequential messages at 0s/~2.5s/~5s. QA review of build screenshots taken at different points in that sequence read the two different headlines as an inconsistency rather than a designed progression — a legitimate risk for a board demo, where a screenshot is a screenshot, not a video. Reverted to one message; the progress bar alone still carries the "something concrete is happening" job a bare spinner can't (§6 below). |
 | S9 result-display hold | `[ASSUMPTION]` — 3 seconds before auto-clearing to ready state | Demo-pacing judgement: long enough to read the result, short enough not to slow the next scan, per `R §2.4`'s speed constraint. No source specifies a duration. |
 | S9/S10 validation response | Uses `duration-instant` (100ms) — no artificial delay | D15's explicit contrast with S4; this one is a design decision, not a stand-in for an unmeasured fact |
 

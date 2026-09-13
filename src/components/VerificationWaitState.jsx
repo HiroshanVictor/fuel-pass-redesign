@@ -1,27 +1,20 @@
 import { useEffect, useState } from 'react'
 import { ClockIcon } from '@heroicons/react/24/outline'
 import { usePrefersReducedMotion } from '../utils/usePrefersReducedMotion'
-import { S4_TOTAL_DELAY_MS, S4_MESSAGE_TIMES_MS } from '../data/timing'
+import { S4_TOTAL_DELAY_MS } from '../data/timing'
 
-const MESSAGES = [
-  'Checking your details…',
-  'Checking DMT vehicle records…',
-  'Almost done…',
-]
+// microcopy.md S4 — single, fixed headline for the whole wait (D19: the
+// staged three-message version was reverted after QA found it read as
+// inconsistent across screenshots taken at different points in the same
+// fixed sequence). The progress bar alone still carries the "something
+// concrete is happening" job a spinner can't — see component-spec.md §6.
+const MESSAGE = 'Checking DMT vehicle records…'
 
-// component-spec.md §6 — the honest wait named in the brief. Deliberately
-// not a spinner: a determinate bar plus staged, specific text tells the
-// user something concrete is happening, per sitemap.md §3–4 and R §5-1.
-// [ASSUMPTION] on the 6-second duration itself — see tokens.md §7.2.
 export default function VerificationWaitState({ onDone }) {
   const reducedMotion = usePrefersReducedMotion()
-  const [messageIndex, setMessageIndex] = useState(0)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const timers = S4_MESSAGE_TIMES_MS.map((time, index) =>
-      window.setTimeout(() => setMessageIndex(index), time)
-    )
     const doneTimer = window.setTimeout(() => onDone?.(), S4_TOTAL_DELAY_MS)
 
     // Linear fill, not eased — an eased fill would imply an acceleration
@@ -36,7 +29,6 @@ export default function VerificationWaitState({ onDone }) {
     if (!reducedMotion) raf = requestAnimationFrame(tick)
 
     return () => {
-      timers.forEach(clearTimeout)
       clearTimeout(doneTimer)
       if (raf) cancelAnimationFrame(raf)
     }
@@ -48,9 +40,9 @@ export default function VerificationWaitState({ onDone }) {
       <ClockIcon className="h-10 w-10 text-text-secondary" aria-hidden="true" />
 
       {reducedMotion ? (
-        <p className="text-body text-text-secondary">
-          Step {messageIndex + 1} of {MESSAGES.length}
-        </p>
+        <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-slate-200">
+          <div className="h-full w-1/3 bg-primary" />
+        </div>
       ) : (
         <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-slate-200">
           <div
@@ -61,7 +53,7 @@ export default function VerificationWaitState({ onDone }) {
       )}
 
       <div role="status" aria-live="polite" className="min-h-[1.75rem] text-emphasis font-bold text-text-primary">
-        {MESSAGES[messageIndex]}
+        {MESSAGE}
       </div>
 
       <p className="max-w-sm text-body text-text-secondary">

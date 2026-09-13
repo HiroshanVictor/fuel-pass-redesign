@@ -118,9 +118,11 @@ Default, hover, active, focus, disabled, loading, error — specified for every 
 
 ## 6. Verification Wait State — S4, the honest wait named in the brief
 
-**Anatomy:** `icon-clock` + a determinate linear progress bar + three staged status messages + a supporting line. Standard tier only.
+**Anatomy:** `icon-clock` + a determinate linear progress bar + one fixed status message + a supporting line. Standard tier only.
 
-**Why not a spinner.** An indeterminate circular spinner says "unknown wait, please stand by" and actively hides the fact that something specific is happening — the exact opposite of what `sitemap.md` §3–4 and `R §5-1` require this screen to demonstrate. A determinate bar plus named, sequential status text ("Checking DMT vehicle records...") tells the user something concrete is occurring and roughly how much is left. The fill uses `easing-standard` applied *linearly*, not eased — an eased fill subtly implies acceleration or deceleration that isn't actually happening, which would misrepresent a constant-rate mock as something it isn't.
+**Why not a spinner.** An indeterminate circular spinner says "unknown wait, please stand by" and actively hides the fact that something specific is happening — the exact opposite of what `sitemap.md` §3–4 and `R §5-1` require this screen to demonstrate. A determinate bar plus a named, specific status message ("Checking DMT vehicle records...") tells the user something concrete is occurring and roughly how much is left. The fill uses `easing-standard` applied *linearly*, not eased — an eased fill subtly implies acceleration or deceleration that isn't actually happening, which would misrepresent a constant-rate mock as something it isn't.
+
+**D19 — one message, not three.** The original spec here staged three sequential messages ("Checking your details...", "Checking DMT vehicle records...", "Almost done...") across the 6-second wait. QA review of build screenshots caught the failure mode: two screenshots of "the same wait state" taken at different elapsed times showed two different headlines, which reads as an inconsistency — a bug report waiting to happen — rather than as the intended progression, especially in a static medium like a screenshot review. Reverted to a single fixed message for the full duration. The determinate progress bar was doing the actual "something concrete is happening, and here's how much is left" work regardless; the staged text was a layer on top that cost more in perceived inconsistency than it added in information.
 
 Because this is a status region, not a classic interactive control, several of the seven states take a different shape than usual — each is still addressed, not skipped:
 
@@ -129,9 +131,9 @@ Because this is a status region, not a classic interactive control, several of t
 | **Default** | **N/A.** This component exists only once triggered by S2's submit; there is no idle appearance to specify. |
 | **Hover** | **N/A.** Nothing on S4 is pointer-interactive — `screen-content.md` records the no-cancel-action decision explicitly. |
 | **Active** | **N/A**, same reasoning. |
-| **Focus** | Not a click target, but the accessible equivalent: an `aria-live="polite"` region announces each staged message as it appears, so a screen-reader user receives the same progression without needing to poll anything. See `accessibility.md` §2. |
+| **Focus** | Not a click target, but the accessible equivalent: an `aria-live="polite"` region announces the status message on mount, so a screen-reader user receives it without needing to poll anything. See `accessibility.md` §2. |
 | **Disabled** | **N/A** — nothing to disable. |
-| **Loading** | **This is the component's entire purpose.** Bar fills 0% → 100% over the `[ASSUMPTION]`-flagged 6-second constant (`tokens.md` §7.2). Status text swaps at 0s / ~2.5s / ~5s, each swap a `duration-base` opacity cross-fade. **`prefers-reduced-motion` fallback:** the continuously-filling bar is replaced by three discrete step markers ("Step 1 of 3", etc.) advancing on the same schedule — the *information* survives, only the continuous motion is removed. |
+| **Loading** | **This is the component's entire purpose.** Bar fills 0% → 100% over the `[ASSUMPTION]`-flagged 6-second constant (`tokens.md` §7.2); the status message is fixed for the full duration (D19). **`prefers-reduced-motion` fallback:** the continuously-filling bar is replaced by a static, non-animating bar at a fixed partial fill — the message and the fact that a wait is in progress both survive; only the continuous motion is removed. |
 | **Error** | **N/A, by product decision, not by omission.** D15 explicitly declined to simulate a lookup timeout or failure on top of the delay. This is the one component in this spec where "error" doesn't exist because the thing that would cause it was deliberately scoped out, and the decision that did so is on the record. |
 
 ---

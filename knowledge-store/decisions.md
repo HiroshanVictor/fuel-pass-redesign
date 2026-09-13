@@ -241,4 +241,30 @@ Those two facts do not license an English-only **token layer**. A font stack, li
 
 ---
 
-## D19 — [next]
+## D19 — Revert S4's wait state from three staged messages to one fixed message
+
+**Date:** 2026-09-13 · **Decided by:** Hiroshan Victor
+
+`component-spec.md` §6 originally specified three sequential status messages during S4's 6-second wait ("Checking your details...", "Checking DMT vehicle records...", "Almost done..."), reasoning that staged, specific text beats a static spinner label. Correct as far as it went — but a QA pass over build screenshots caught the cost: two screenshots of "the same wait state," taken at different points in the same fixed sequence, showed two different headlines. That reads as an inconsistency — the kind of thing a reviewer flags as a bug — not as a designed progression, especially reviewed as stills rather than as a live wait.
+
+Reverted to a single fixed message ("Checking DMT vehicle records...") shown for the full 6 seconds. The determinate progress bar was already doing the load-bearing work of "something concrete is happening, and here's roughly how much is left" — the staged text was a layer on top that cost more in perceived inconsistency across a demo review than it added in information. The underlying reasoning against a generic spinner (`sitemap.md` §3–4, `R §5-1`) is unaffected; only the message-staging mechanism is removed.
+
+**Affects:** `component-spec.md` §6, `tokens.md` §7.2, `screen-content.md` S4, `microcopy.md` S4, `accessibility.md` §2–3/§6, `src/components/VerificationWaitState.jsx`
+
+---
+
+## D20 — S2's "not found" error stops assuming a cause it hasn't verified
+
+**Date:** 2026-09-13 · **Decided by:** Hiroshan Victor
+
+`lookupVehicle()` collapsed every non-match into one `not-found` resolution, and S2's inline error copy assumed the cause was a typo regardless of what actually happened. That's the same fault-attribution mistake the S6 rename already corrected once, for the previous-owner case — assigning user error to something the system can't actually verify. Raised when asked how a brand-new (never-registered) vehicle is handled: it isn't (P7 remains a stub, D8/D15 unchanged), but any such vehicle typed into S2 would silently fall into the typo-framed error alongside genuine typos, with no way for the mock — or, arguably, for real DMT data on its own — to tell the two apart.
+
+`lookupVehicle()` now returns two distinct non-match resolutions: `not-found`, when one field matches a known record and the other doesn't (genuinely typo-shaped, keeps the existing "double-check what you entered" copy), and `no-record`, when neither field matches anything at all. `no-record` gets new copy that names the ambiguity honestly instead of defaulting to typo framing, and links to Help & Answers (S8) rather than only mentioning it: *"We couldn't find this vehicle. Double-check what you entered, or if this is a brand-new vehicle being registered for the first time, see Help & Answers."*
+
+No new screen, no new flow, and no reopening of D8/D15 — P7 still isn't built. This only stops S2 from asserting a cause at the one boundary point where it was quietly guessing.
+
+**Affects:** `src/data/demoData.js`, `src/screens/S2FindVehicle.jsx`, `microcopy.md` S2, `screen-content.md` S2, `user-flows.md` Flow 4, `sitemap.md` §8 (P7 row)
+
+---
+
+## D21 — [next]
